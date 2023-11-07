@@ -112,4 +112,4 @@ else:
     st.write('Please initialize the game board with the "Initialize Board" button above.')
 
 
-st.markdown(f'[Source code]({REPO_URL}) | Nov 2023 | [Victor Botelho]()')
+st.markdown(f'[Source code]({REPO_URL}) | Nov 2023 | [Victor Botelho]({AUTHOR_URL})')
