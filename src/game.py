@@ -1,9 +1,12 @@
+from copy import copy
+
 import pandas as pd
 
 class BattleshipBoard:
     def __init__(self, ship_sizes = [5, 4, 3, 3, 2], width=10, height=10):
-
+        # Set a maximum board size (values larger than 676 will break the row labels)
         MAX_WIDTH, MAX_HEIGHT = 30, 30
+
         # Check if the board is too large
         if width > MAX_WIDTH or height > MAX_HEIGHT:
             raise ValueError(f"Board dimensions cannot exceed {MAX_WIDTH}x{MAX_HEIGHT}.")
@@ -17,11 +20,14 @@ class BattleshipBoard:
         if width < 2 or height < 2:
             raise ValueError("Board width and height must be greater than or equal to 2.")
 
+        self.original_ship_sizes = copy(ship_sizes)
         self.ship_sizes = ship_sizes
         self.width = width
         self.height = height
         self.grid = [[' ' for _ in range(width)] for _ in range(height)]
         self.possibility_grid = [[0 for _ in range(width)] for _ in range(height)]
+        self.sunken_ships = []
+        self.played_positions = []
         self.calculate_possibilities()
 
     def _apply_gradient(self, val):
@@ -86,20 +92,61 @@ class BattleshipBoard:
     def mark_hit(self, row, col):
         row_index = ord(row.upper()) - 65
         col_index = col - 1
+
+        # Check if this position has already been played
+        if (row, col) in self.played_positions:
+            raise ValueError(f"Position {row}{col} has already been played.")
+
         if self._is_valid_position(row_index, col_index):
             self.grid[row_index][col_index] = 'X'
             self.possibility_grid[row_index][col_index] = 0  # No possibilities where there's a hit
+            self.played_positions.append((row, col))
         else:
             print(f"Invalid position. It must be within A-{chr(64 + self.height)} and 1-{self.width}.")
 
     def mark_miss(self, row, col):
         row_index = ord(row.upper()) - 65
         col_index = col - 1
+
+        # Check if this position has already been played
+        if (row, col) in self.played_positions:
+            raise ValueError(f"Position {row}{col} has already been played.")
+
         if self._is_valid_position(row_index, col_index):
             self.grid[row_index][col_index] = 'O'
             self.possibility_grid[row_index][col_index] = 0  # No possibilities where there's a miss
+            self.played_positions.append((row, col))
         else:
             print(f"Invalid position. It must be within A-{chr(64 + self.height)} and 1-{self.width}.")
+
+    def undo_play(self, row, col):
+        row_index = ord(row.upper()) - 65
+        col_index = col - 1
+
+        if (row, col) not in self.played_positions:
+            raise ValueError(f"Position {row}{col} has not been played.")
+
+        if self._is_valid_position(row_index, col_index):
+            self.grid[row_index][col_index] = ' '
+            self.played_positions.remove((row, col))
+            self.calculate_possibilities()
+        else:
+            print(f"Invalid position. It must be within A-{chr(64 + self.height)} and 1-{self.width}.")
+
+    def unsink_ship(self, ship_size):
+        """
+        Unmark a ship as sunk and add the ship size back to the list.
+        Then, recalculate the possibility grid.
+        """
+        # Add the ship size back to the ship_sizes list if it exists
+        if ship_size not in self.original_ship_sizes:
+            raise ValueError(f"No ship of size {ship_size} to unsink.")
+        if ship_size in self.sunken_ships:
+            self.sunken_ships.remove(ship_size)
+            self.ship_sizes.append(ship_size)
+            self.calculate_possibilities()
+        else:
+            raise ValueError(f"No ship of size {ship_size} to unsink.")
 
     def _is_valid_position(self, row, col):
         return 0 <= row < self.height and 0 <= col < self.width
@@ -110,10 +157,13 @@ class BattleshipBoard:
         Then, recalculate the possibility grid.
         """
         # Remove the ship size from the ship_sizes list if it exists
+        print(f"Sinking ship of size {ship_size}.")
         if ship_size in self.ship_sizes:
             self.ship_sizes.remove(ship_size)
+            self.sunken_ships.append(ship_size)
             self.calculate_possibilities()
         else:
+            # raise ValueError(f"No ship of size {ship_size} to sink.")
             print(f"No ship of size {ship_size} to sink.")
 
     def calculate_possibilities(self):
