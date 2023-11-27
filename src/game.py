@@ -188,6 +188,9 @@ class BattleshipBoard:
         max_possibility = 0
         best_targets = []
 
+        # Update the possibility grid
+        self.calculate_possibilities()
+
         # Iterate over the board to find the cell(s) with the highest possibility
         for row in range(self.height):
             for col in range(self.width):
