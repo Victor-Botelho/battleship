@@ -28,7 +28,6 @@ class BattleshipBoard:
         self.possibility_grid = [[0 for _ in range(width)] for _ in range(height)]
         self.sunken_ships = []
         self.played_positions = []
-        self.calculate_possibilities()
 
     def _apply_gradient(self, val):
         # Normalize the possibilities to get a gradient effect
@@ -61,6 +60,9 @@ class BattleshipBoard:
     def print_board(self, possibilities = False):
         def _fill_cell(grid, i, j, possibilities):
             return grid[i][j] if possibilities else '\u2022'
+
+        if possibilities:
+            self.calculate_possibilities()
 
         # Create a board for display with hits, misses, and possibility counts
         display_board = [
@@ -129,7 +131,6 @@ class BattleshipBoard:
         if self._is_valid_position(row_index, col_index):
             self.grid[row_index][col_index] = ' '
             self.played_positions.remove((row, col))
-            self.calculate_possibilities()
         else:
             print(f"Invalid position. It must be within A-{chr(64 + self.height)} and 1-{self.width}.")
 
@@ -144,7 +145,6 @@ class BattleshipBoard:
         if ship_size in self.sunken_ships:
             self.sunken_ships.remove(ship_size)
             self.ship_sizes.append(ship_size)
-            self.calculate_possibilities()
         else:
             raise ValueError(f"No ship of size {ship_size} to unsink.")
 
@@ -161,7 +161,6 @@ class BattleshipBoard:
         if ship_size in self.ship_sizes:
             self.ship_sizes.remove(ship_size)
             self.sunken_ships.append(ship_size)
-            self.calculate_possibilities()
         else:
             # raise ValueError(f"No ship of size {ship_size} to sink.")
             print(f"No ship of size {ship_size} to sink.")
