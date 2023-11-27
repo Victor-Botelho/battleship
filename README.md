@@ -1,5 +1,5 @@
 # battleship
-A Python simulator for iterating over possible board layouts to optimize Battleship strategy and gameplay. This simulator was inspired by Digital Genius\' [video on YouTube](https://www.youtube.com/watch?v=8FctDuTfcO8), so go check it out! The simulator is also available as a [Streamlit app](placeholder).
+A Python simulator for iterating over possible board layouts to optimize Battleship strategy and gameplay. This simulator was inspired by Digital Genius\' [video on YouTube](https://www.youtube.com/watch?v=8FctDuTfcO8), so go check it out! The simulator is also available as a [Streamlit app](https://battleship.streamlit.app/).
 
 ## Usage
 
